@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Component
+    xmlns="http://www.red5studios.com/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.red5studios.com/ ../../../../schemas/component.xsd"
+    >
+    <Info
+        title="bAutomaticRepairs"
+        author="BurstBiscuit"
+        description=""
+        url=""
+        uiVersion="1000"
+    />
+    <Events>
+        <Event name="ON_REPAIR_RESPONSE"        bind="OnRepairResponse" />
+        <Event name="ON_TERMINAL_AUTHORIZED"    bind="OnTerminalAuthorized" />
+    </Events>
+</Component>
