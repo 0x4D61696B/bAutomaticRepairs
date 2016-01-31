@@ -12,7 +12,9 @@
         uiVersion="1000"
     />
     <Events>
-        <Event name="ON_REPAIR_RESPONSE"        bind="OnRepairResponse" />
-        <Event name="ON_TERMINAL_AUTHORIZED"    bind="OnTerminalAuthorized" />
+        <Event name="ON_REPAIR_RESPONSE"            bind="OnRepairResponse" />
+        <Event name="ON_TERMINAL_AUTHORIZED"        bind="OnTerminalAuthorized" />
+
+        <Event name="MY_ACTIVITY_TRACKER_UPDATE"    bind="OnTrackerUpdate" />
     </Events>
 </Component>
