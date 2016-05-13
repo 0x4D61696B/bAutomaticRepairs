@@ -1,11 +1,12 @@
 -- =============================================================================
---  bAutomaticRepairs
+--  bAutoRepair
 --    by: BurstBiscuit
 -- =============================================================================
 
 require "math"
 require "table"
 require "unicode"
+
 require "lib/lib_ChatLib"
 require "lib/lib_Debug"
 
@@ -17,10 +18,10 @@ Debug.EnableLogging(false)
 -- =============================================================================
 
 local c_MaxDurability = 1000
-local itemIDs = {}
-local repairCost = 0
 
-local g_Enabled = true
+local g_Enabled     = true
+local g_RepairCost  = 0
+local g_RepairList  = {}
 
 
 -- =============================================================================
@@ -28,7 +29,7 @@ local g_Enabled = true
 -- =============================================================================
 
 function Notification(message)
-    ChatLib.Notification({text = "[bAutomaticRepairs] " .. tostring(message)})
+    ChatLib.Notification({text = "[bAutoRepair] " .. tostring(message)})
 end
 
 function GetRepairCost(itemInfo)
@@ -43,51 +44,59 @@ end
 -- =============================================================================
 
 function OnRepairResponse(args)
+    Debug.Table("OnRepairResponse()", args)
+
     if (args.success) then
-        Notification("All items have been repaired for " .. repairCost .. " Crystite.")
+        Notification("All items have been repaired for " .. tostring(g_RepairCost) .. " Crystite.")
+        g_RepairList = {}
     end
 end
 
 function OnTerminalAuthorized(args)
-    Debug.Table("OnTerminalAuthorized", {addonEnabled = g_Enabled, terminalInfo = args})
+    Debug.Table("OnTerminalAuthorized()", args)
 
     if (g_Enabled and args.terminal_type == "GARAGE") then
-        local itemList = Player.GetItemIdList("gear")
-        itemIDs = {}
-        repairCost = 0
+        local itemIdList = Player.GetItemIdList("gear")
+        g_RepairCost = 0
+        g_RepairList = {}
 
-        for _, itemGuid in pairs(itemList) do
+        for _, itemGuid in pairs(itemIdList) do
             local itemInfo = Player.GetItemInfo(itemGuid)
 
             if (itemInfo and itemInfo.durability) then
                 if (itemInfo.durability.current < c_MaxDurability) then
-                    repairCost = repairCost + GetRepairCost(itemInfo)
-                    table.insert(itemIDs, itemInfo.itemId)
+                    g_RepairCost = g_RepairCost + GetRepairCost(itemInfo)
+                    table.insert(g_RepairList, itemInfo.itemId)
                 end
             end
         end
 
-        if (#itemIDs > 0) then
-            Player.RequestRepairItems(itemIDs)
+        if (#g_RepairList > 0) then
+            pcall(Player.RequestRepairItems, g_RepairList)
         end
     end
 end
 
 function OnTrackerUpdate(args)
-    if not (args.json) then return end
+    Debug.Table("OnTrackerUpdate()", args)
 
-    local args = jsontotable(args.json)
+    if (not args.json) then
+        return
+    end
 
-    if (args.id and args.objectives and args.id == "mission_867") then
-        Debug.Table("OnTrackerUpdate", args)
+    local json = jsontotable(args.json)
 
-        for _, objective in pairs(args.objectives) do
-            if not (objective.completed) then
-                g_Enabled = false
+    if (json.id and json.objectives and json.id == "mission_867") then
+        Debug.Log("Repair tutorial mission found, checking objective status")
+        g_Enabled = false
+
+        for _, objective in pairs(json.objectives) do
+            if (not objective.completed) then
                 return
             end
         end
 
+        Debug.Log("All objectives completed, enabling addon again")
         g_Enabled = true
     end
 end

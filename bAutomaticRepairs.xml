@@ -6,7 +6,7 @@
     >
 
     <Info
-        title="bAutomaticRepairs"
+        title="bAutoRepair"
         author="BurstBiscuit"
         description="Automatically repairs your equipment when visiting a battleframe garage"
         url="https://bitbucket.org/0x4D61696B/bautomaticrepairs"
